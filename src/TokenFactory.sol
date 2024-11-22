@@ -4,12 +4,14 @@ pragma solidity 0.8.28;
 import {Token} from "./Token.sol";
 
 contract TokenFactory {
-    Token token;
     ///////////////
     /// Errors  ///
     ///////////////
-
     error TokenFactory__CreatorFeeNotIncluded();
+    error TokenFactory__ZeroAddress();
+    error TokenFactory__ZeroAmount();
+    error TokenFactory__MaxSupplyExceeded();
+    error TokenFactory__FundingFulfilled();
 
     //////////////
     /// Types  ///
@@ -21,6 +23,7 @@ contract TokenFactory {
         string logoUrl;
         address tokenAddress;
         address creator;
+        uint256 amountRaised;
     }
 
     ///////////////////////
@@ -29,13 +32,17 @@ contract TokenFactory {
     uint256 public constant CREATION_PROTOCOL_FEES = 0.0005 ether;
     uint256 public constant FUNDING_GOAL = 24 ether;
     uint256 public constant DECIMALS = 10e18;
-    uint256 public constant MAX_SUPPLY = 1000000 * DECIMALS;
+    uint256 public constant MAX_SUPPLY = 10e9 * DECIMALS;
     uint256 public constant INITIAL_SUPPLY = MAX_SUPPLY * 20 / 100;
+
+    // Remaining supply after creation / FUNDING_GOAL = 0.00000003 * 10e18 = INITIAL_PRICE
+    uint256 public constant INITIAL_PRICE = 30000000000;
 
     uint256 public totalTokensDeployed;
     mapping(address => TokenInfo) public addressToToken;
 
-    address[] public tokensAddress;
+    // List of all deployed token addresses.
+    address[] public deployedTokenAddresses;
 
     ///////////////
     ///  Events ///
@@ -43,10 +50,6 @@ contract TokenFactory {
     event TokenCreated(
         string indexed name, string indexed symbol, string description, string uri, address indexed creator
     );
-
-    ///////////////
-    //  Modifier //
-    ///////////////
 
     ///////////////
     // Functions //
@@ -67,22 +70,36 @@ contract TokenFactory {
         returns (address)
     {
         require(msg.value >= CREATION_PROTOCOL_FEES, TokenFactory__CreatorFeeNotIncluded());
-        token = new Token(name, symbol, INITIAL_SUPPLY);
-        addressToToken[msg.sender] = TokenInfo(name, symbol, description, logoUrl, address(token), msg.sender);
-        emit TokenCreated(name, symbol, description, logoUrl, msg.sender);
 
-        return address(token);
+        Token token = new Token(name, symbol, INITIAL_SUPPLY);
+        address tokenAddress = address(token);
+        addressToToken[tokenAddress] = TokenInfo(name, symbol, description, logoUrl, address(token), msg.sender, 0);
+        deployedTokenAddresses.push(tokenAddress);
+
+        emit TokenCreated(name, symbol, description, logoUrl, msg.sender);
+        return tokenAddress;
     }
 
-    ////////////////////////
-    // External Functions //
-    ////////////////////////
+    /**
+     * @notice User calls this function to buy already deployed tokens.
+     *  @dev User buys their desired amount of specific tokens and instead pays with eth.
+     *  @param tokenAddress Address of the token.
+     *  @param amount Amount of tokens to buy.
+     */
+    function buyTokens(address tokenAddress, uint256 amount) public payable {
+        TokenInfo memory tokenInfo = addressToToken[tokenAddress];
+        Token token = Token(tokenAddress);
+        uint256 tokenCurrentSupply = token.totalSupply();
+        uint256 availableSupply = MAX_SUPPLY - tokenCurrentSupply;
 
-    ///////////////////////////////////////
-    // Private & Internal View Functions //
-    ///////////////////////////////////////
+        require(tokenInfo.tokenAddress != address(0), TokenFactory__ZeroAddress());
+        require(amount > 0, TokenFactory__ZeroAmount());
+        require(amount <= availableSupply, TokenFactory__MaxSupplyExceeded());
+        require(tokenInfo.amountRaised <= FUNDING_GOAL, TokenFactory__FundingFulfilled());
+    }
 
-    ///////////////////////////////////////
-    // Public & External View Functions ///
-    ///////////////////////////////////////
+    // function calculateCost(uint256 currentSupply, uint256 amount) internal pure returns (uint256) {
+    //     uint256 a = currentSupply;
+    //     uint256 b = a + amount;
+    // }
 }

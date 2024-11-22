@@ -3,9 +3,11 @@ pragma solidity 0.8.28;
 
 import {Test} from "forge-std/Test.sol";
 import {TokenFactory} from "../src/TokenFactory.sol";
+import {Token} from "../src/Token.sol";
 
 contract TokenFactoryTest is Test {
     TokenFactory tokenFactory;
+    Token token;
     address USER;
     uint256 private constant FEE = 0.0005 ether;
 
@@ -16,11 +18,16 @@ contract TokenFactoryTest is Test {
     }
 
     function testCanDeployToken() public {
+        string memory name = "DogeCoin";
+        string memory symbol = "DOGE";
+        string memory description = "Official DogeCoin";
+        string memory logoUrl = "https://dogecoin.com";
         vm.startPrank(USER);
-        tokenFactory.createToken{value: FEE}("Test Token", "TST", "This is description", "RANDOM URI");
+        address tokenAddress = tokenFactory.createToken{value: FEE}(name, symbol, description, logoUrl);
         vm.stopPrank();
 
-        (,,,,, address creator) = tokenFactory.addressToToken(USER);
-        assertEq(creator, USER);
+        token = Token(tokenAddress);
+        uint256 tokenSupply = token.totalSupply();
+        assertEq(tokenSupply, tokenFactory.INITIAL_SUPPLY());
     }
 }
