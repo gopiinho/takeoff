@@ -12,6 +12,7 @@ contract TokenFactory {
     error TokenFactory__ZeroAmount();
     error TokenFactory__MaxSupplyExceeded();
     error TokenFactory__FundingFulfilled();
+    error TokenFactory__NotEnoughEthToBuyTokens();
 
     //////////////
     /// Types  ///
@@ -31,12 +32,13 @@ contract TokenFactory {
     ///////////////////////
     uint256 public constant CREATION_PROTOCOL_FEES = 0.0005 ether;
     uint256 public constant FUNDING_GOAL = 24 ether;
-    uint256 public constant DECIMALS = 10e18;
-    uint256 public constant MAX_SUPPLY = 10e9 * DECIMALS;
-    uint256 public constant INITIAL_SUPPLY = MAX_SUPPLY * 20 / 100;
+    uint256 public constant DECIMALS = 1e18;
+    uint256 public constant MAX_SUPPLY = 1e9 * DECIMALS;
+    uint256 public constant INITIAL_SUPPLY = 20 * MAX_SUPPLY / 100;
 
     // Remaining supply after creation / FUNDING_GOAL = 0.00000003 * 10e18 = INITIAL_PRICE
     uint256 public constant INITIAL_PRICE = 30000000000;
+    uint256 public constant K = 8 * 1e15;
 
     uint256 public totalTokensDeployed;
     mapping(address => TokenInfo) public addressToToken;
@@ -96,10 +98,52 @@ contract TokenFactory {
         require(amount > 0, TokenFactory__ZeroAmount());
         require(amount <= availableSupply, TokenFactory__MaxSupplyExceeded());
         require(tokenInfo.amountRaised <= FUNDING_GOAL, TokenFactory__FundingFulfilled());
+
+        // Calculate the cost of tokens of amount quantity based on exponential bonding curve.
+        uint256 purchasedCurrentSupply = (tokenCurrentSupply - INITIAL_SUPPLY) / DECIMALS;
+        uint256 ethAmount = calculateCost(purchasedCurrentSupply, amount);
+
+        require(msg.value >= ethAmount, TokenFactory__NotEnoughEthToBuyTokens());
+        tokenInfo.amountRaised += ethAmount;
+
+        token.mintTokens(msg.sender, amount);
     }
 
-    // function calculateCost(uint256 currentSupply, uint256 amount) internal pure returns (uint256) {
-    //     uint256 a = currentSupply;
-    //     uint256 b = a + amount;
-    // }
+    ///////////////////////////////////////
+    // Private & Internal View Functions //
+    ///////////////////////////////////////
+    function calculateCost(uint256 currentSupply, uint256 amount) public pure returns (uint256) {
+        uint256 scaledAmount = amount / DECIMALS;
+        uint256 exp1 = (K * (currentSupply + scaledAmount)) / 1e18;
+        uint256 exp2 = (K * currentSupply) / 1e18;
+
+        uint256 e1 = exp(exp1);
+        uint256 e2 = exp(exp2);
+
+        // cost =  P0/K * (e^K(c + x) - e^K(c))
+        // Where (P0 / k) * (e^(k * (currentSupply + amount)) - e^(k * currentSupply))
+        uint256 ethCost = (INITIAL_PRICE * DECIMALS * (e1 - e2)) / K;
+
+        return ethCost;
+    }
+
+    // Follows the Taylor Series Approximation
+    function exp(uint256 x) internal pure returns (uint256) {
+        // Start with 1 * 10^18 for precision
+        uint256 sum = 1e18;
+        // Initial term = 1 * 10^18
+        uint256 term = 1e18;
+        uint256 xPower = x;
+
+        for (uint256 i = 1; i <= 20; ++i) {
+            // Increase iterations for better accuracy
+            // x^i / i!
+            term = (term * xPower) / (i * 1e18);
+            sum += term;
+            // Prevent overflow and unnecessary calculations
+            if (term < 1) break;
+        }
+
+        return sum;
+    }
 }
