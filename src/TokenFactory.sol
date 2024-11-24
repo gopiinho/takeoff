@@ -10,10 +10,12 @@ contract TokenFactory {
     ///////////////
     /// Errors  ///
     ///////////////
+    error TokenFactory__NotOwner();
     error TokenFactory__ZeroAmount();
     error TokenFactory__ZeroAddress();
     error TokenFactory__FundingFulfilled();
     error TokenFactory__MaxSupplyExceeded();
+    error TokenFactory__FeeWithdrawalFailed();
     error TokenFactory__CreatorFeeNotIncluded();
     error TokenFactory__NotEnoughEthToBuyTokens();
 
@@ -33,6 +35,11 @@ contract TokenFactory {
     ///////////////////////
     /// State Variables ///
     ///////////////////////
+    address public owner;
+
+    address public constant UNISWAP_V2_ROUTER = 0x4752ba5DBc23f44D87826276BF6Fd6b1C372aD24;
+    address public constant UNISWAP_v2_FACTORY = 0x8909Dc15e40173Ff4699343b6eB8132c65e18eC6;
+
     uint256 public constant CREATION_PROTOCOL_FEES = 0.0005 ether;
     uint256 public constant FUNDING_GOAL = 24 ether;
     uint256 public constant DECIMALS = 1e18;
@@ -43,13 +50,8 @@ contract TokenFactory {
     uint256 public constant INITIAL_PRICE = 30000000000;
     uint256 public constant K = 8 * 1e15;
 
-    address public constant UNISWAP_V2_ROUTER = 0x4752ba5DBc23f44D87826276BF6Fd6b1C372aD24;
-    address public constant UNISWAP_v2_FACTORY = 0x8909Dc15e40173Ff4699343b6eB8132c65e18eC6;
-
     uint256 public totalTokensDeployed;
     mapping(address => TokenInfo) public addressToToken;
-
-    // List of all deployed token addresses.
     address[] public deployedTokenAddresses;
 
     ///////////////
@@ -64,6 +66,9 @@ contract TokenFactory {
     ///////////////
     // Functions //
     ///////////////
+    constructor() {
+        owner = msg.sender;
+    }
     /**
      * @notice User calls this function to create a new meme token.
      *  @dev This function is called by the user to create a new token. User is able to set the name, symbol, description and logo url.
@@ -74,6 +79,7 @@ contract TokenFactory {
      *  @param logoUrl The logo url of the token.
      *  @return address The address of the token deployed.
      */
+
     function createToken(string memory name, string memory symbol, string memory description, string memory logoUrl)
         public
         payable
@@ -152,6 +158,18 @@ contract TokenFactory {
     function _burnLiquidityTokens(address pool, uint256 liquidity) internal {
         IUniswapV2Pair uniswapv2Pair = IUniswapV2Pair(pool);
         uniswapv2Pair.transfer(address(0), liquidity);
+    }
+
+    /**
+     * @notice Withdraws the protocol earned fees.
+     *  @dev Withdraws the protocol earned fees, can only be called by the owner which is set to the deployer of the contract.
+     *  @param to Address where the fees will be sent.
+     */
+    function withdrawFee(address to) public {
+        require(msg.sender == owner, TokenFactory__NotOwner());
+        uint256 amount = address(this).balance;
+        (bool success,) = to.call{value: amount}("");
+        require(success, TokenFactory__FeeWithdrawalFailed());
     }
 
     ///////////////////////////////////////

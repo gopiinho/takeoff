@@ -8,19 +8,24 @@ import {Token} from "../src/Token.sol";
 contract TokenFactoryTest is Test {
     TokenFactory tokenFactory;
     Token token;
+    address OWNER;
+    address WITHDRAW_WALLET;
     address CREATOR;
     address USER;
     uint256 private constant FEE = 0.0005 ether;
 
     function setUp() public {
-        tokenFactory = new TokenFactory();
+        OWNER = makeAddr("owner");
         CREATOR = makeAddr("creator");
+        WITHDRAW_WALLET = makeAddr("withdrawWallet");
         USER = makeAddr("user");
         vm.deal(CREATOR, 1 ether);
-        vm.deal(USER, 10 ether);
-    }
+        vm.deal(USER, 30 ether);
 
-    function testCanDeployToken() public {
+        vm.startPrank(OWNER);
+        tokenFactory = new TokenFactory();
+        vm.stopPrank();
+
         string memory name = "DogeCoin";
         string memory symbol = "DOGE";
         string memory description = "Official DogeCoin";
@@ -30,13 +35,15 @@ contract TokenFactoryTest is Test {
         vm.stopPrank();
 
         token = Token(tokenAddress);
+    }
+
+    function testCanDeployToken() public view {
         uint256 tokenSupply = token.totalSupply();
         assertEq(tokenSupply, tokenFactory.INITIAL_SUPPLY());
     }
 
     function testCanBuyTokens() public {
-        testCanDeployToken();
-        uint256 amountToBuy = 80000000e18;
+        uint256 amountToBuy = 700000000e18;
         address tokenToBuy = address(token);
         uint256 purchasedSupply = token.totalSupply() - tokenFactory.INITIAL_SUPPLY();
         uint256 ethCost = tokenFactory.calculateCost(purchasedSupply, amountToBuy);
@@ -47,5 +54,24 @@ contract TokenFactoryTest is Test {
 
         uint256 userBalance = token.balanceOf(USER);
         assertEq(userBalance, amountToBuy);
+    }
+
+    function testCanWithdrawProtocolFee() public {
+        uint256 startingProtocolFeeBalance = address(tokenFactory).balance;
+        vm.startPrank(OWNER);
+        tokenFactory.withdrawFee(WITHDRAW_WALLET);
+        vm.stopPrank();
+        uint256 endingProtocolFeeBalance = address(tokenFactory).balance;
+
+        uint256 withdrawWalletBalance = WITHDRAW_WALLET.balance;
+        assertEq(withdrawWalletBalance, startingProtocolFeeBalance);
+        assertEq(endingProtocolFeeBalance, 0);
+    }
+
+    function testOnlyOwnerCanWithdrawProtocolFee() public {
+        vm.startPrank(USER);
+        vm.expectRevert(TokenFactory.TokenFactory__NotOwner.selector);
+        tokenFactory.withdrawFee(USER);
+        vm.stopPrank();
     }
 }
