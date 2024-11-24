@@ -2,16 +2,19 @@
 pragma solidity 0.8.28;
 
 import {Token} from "./Token.sol";
+import {IUniswapV2Router01} from "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router01.sol";
+import {IUniswapV2Factory} from "@uniswap/v2-core/contracts/interfaces/IUniswapV2Factory.sol";
+import {IUniswapV2Pair} from "@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol";
 
 contract TokenFactory {
     ///////////////
     /// Errors  ///
     ///////////////
-    error TokenFactory__CreatorFeeNotIncluded();
-    error TokenFactory__ZeroAddress();
     error TokenFactory__ZeroAmount();
-    error TokenFactory__MaxSupplyExceeded();
+    error TokenFactory__ZeroAddress();
     error TokenFactory__FundingFulfilled();
+    error TokenFactory__MaxSupplyExceeded();
+    error TokenFactory__CreatorFeeNotIncluded();
     error TokenFactory__NotEnoughEthToBuyTokens();
 
     //////////////
@@ -40,6 +43,9 @@ contract TokenFactory {
     uint256 public constant INITIAL_PRICE = 30000000000;
     uint256 public constant K = 8 * 1e15;
 
+    address public constant UNISWAP_V2_ROUTER = 0x4752ba5DBc23f44D87826276BF6Fd6b1C372aD24;
+    address public constant UNISWAP_v2_FACTORY = 0x8909Dc15e40173Ff4699343b6eB8132c65e18eC6;
+
     uint256 public totalTokensDeployed;
     mapping(address => TokenInfo) public addressToToken;
 
@@ -52,6 +58,8 @@ contract TokenFactory {
     event TokenCreated(
         string indexed name, string indexed symbol, string description, string uri, address indexed creator
     );
+
+    event TokenPairDeployed(address token0, address token1);
 
     ///////////////
     // Functions //
@@ -75,7 +83,7 @@ contract TokenFactory {
 
         Token token = new Token(name, symbol, INITIAL_SUPPLY);
         address tokenAddress = address(token);
-        addressToToken[tokenAddress] = TokenInfo(name, symbol, description, logoUrl, address(token), msg.sender, 0);
+        addressToToken[tokenAddress] = TokenInfo(name, symbol, description, logoUrl, tokenAddress, msg.sender, 0);
         deployedTokenAddresses.push(tokenAddress);
 
         emit TokenCreated(name, symbol, description, logoUrl, msg.sender);
@@ -106,19 +114,56 @@ contract TokenFactory {
         require(msg.value >= ethAmount, TokenFactory__NotEnoughEthToBuyTokens());
         tokenInfo.amountRaised += ethAmount;
 
+        if (tokenInfo.amountRaised >= FUNDING_GOAL) {
+            uint256 ethAmountLp = tokenInfo.amountRaised;
+            uint256 tokenAmountLp = INITIAL_SUPPLY;
+
+            _deployLpAndBurnTokens(tokenAddress, ethAmountLp, tokenAmountLp);
+        }
+
         token.mintTokens(msg.sender, amount);
     }
 
+    function _deployLpAndBurnTokens(address tokenAddress, uint256 amount, uint256 ethAmount) internal {
+        address pool = _createLiquidityPair(tokenAddress);
+        uint256 liquidity = _provideLiquidity(tokenAddress, amount, ethAmount);
+        _burnLiquidityTokens(pool, liquidity);
+    }
+
+    function _createLiquidityPair(address tokenAddress) internal returns (address) {
+        IUniswapV2Factory factory = IUniswapV2Factory(UNISWAP_v2_FACTORY);
+        IUniswapV2Router01 router = IUniswapV2Router01(UNISWAP_V2_ROUTER);
+        address pairAddress = factory.createPair(tokenAddress, router.WETH());
+
+        return pairAddress;
+    }
+
+    function _provideLiquidity(address tokenAddress, uint256 amount, uint256 ethAmount) internal returns (uint256) {
+        Token token = Token(tokenAddress);
+        token.approve(UNISWAP_V2_ROUTER, amount);
+        IUniswapV2Router01 router = IUniswapV2Router01(UNISWAP_V2_ROUTER);
+        (,, uint256 liquidity) = router.addLiquidityETH{value: ethAmount}(
+            address(token), amount, amount, ethAmount, address(this), block.timestamp
+        );
+
+        return liquidity;
+    }
+
+    function _burnLiquidityTokens(address pool, uint256 liquidity) internal {
+        IUniswapV2Pair uniswapv2Pair = IUniswapV2Pair(pool);
+        uniswapv2Pair.transfer(address(0), liquidity);
+    }
+
     ///////////////////////////////////////
-    // Private & Internal View Functions //
+    // Public & External View Functions ///
     ///////////////////////////////////////
     function calculateCost(uint256 currentSupply, uint256 amount) public pure returns (uint256) {
         uint256 scaledAmount = amount / DECIMALS;
         uint256 exp1 = (K * (currentSupply + scaledAmount)) / 1e18;
         uint256 exp2 = (K * currentSupply) / 1e18;
 
-        uint256 e1 = exp(exp1);
-        uint256 e2 = exp(exp2);
+        uint256 e1 = _exp(exp1);
+        uint256 e2 = _exp(exp2);
 
         // cost =  P0/K * (e^K(c + x) - e^K(c))
         // Where (P0 / k) * (e^(k * (currentSupply + amount)) - e^(k * currentSupply))
@@ -127,8 +172,11 @@ contract TokenFactory {
         return ethCost;
     }
 
+    ///////////////////////////////////////
+    // Private & Internal View Functions //
+    ///////////////////////////////////////
     // Follows the Taylor Series Approximation
-    function exp(uint256 x) internal pure returns (uint256) {
+    function _exp(uint256 x) internal pure returns (uint256) {
         // Start with 1 * 10^18 for precision
         uint256 sum = 1e18;
         // Initial term = 1 * 10^18
