@@ -8,7 +8,7 @@ export default function Navbar() {
 
   return (
     <div className="h-16 flex justify-between items-center px-6">
-      <h1>take.off</h1>
+      <h1 className="font-semibold">take.off</h1>
       {authenticated ? (
         <button onClick={logout}>{address?.slice(0, 6)}...</button>
       ) : (

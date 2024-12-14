@@ -1,0 +1,153 @@
+'use client'
+import { useState } from 'react'
+import { Address } from 'viem'
+import { useWriteContract, useAccount } from 'wagmi'
+import abi from '@/utils/abis/token-factory.json'
+import { MdFileUpload } from 'react-icons/md'
+
+interface CreateCoinProps {
+  name: string
+  ticker: string
+  description: string
+  image: string
+  account: Address | undefined
+}
+
+const requiredValue = 500000000000000
+
+export default function TokenDetails() {
+  const [fileName, setFileName] = useState('')
+  const [filePreview, setFilePreview] = useState<string | null>(null)
+  const [error, setError] = useState('')
+  const [formData, setFormData] = useState({
+    name: '',
+    ticker: '',
+    description: '',
+    image: '',
+  })
+  const { data: hash, writeContractAsync } = useWriteContract()
+  const { address } = useAccount()
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      setError('File size must not exceed 2MB.')
+      setFilePreview(null)
+      setFileName('')
+      return
+    }
+    setError('')
+    setFileName(file.name)
+    const previewURL = URL.createObjectURL(file)
+    setFilePreview(previewURL)
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
+  }
+
+  async function createCoin({ name, ticker, description, image, account }: CreateCoinProps) {
+    try {
+      const args = [name, ticker, description, image]
+
+      const transaction = await writeContractAsync({
+        abi: abi,
+        address: '0xE4aA5Ec56117830114370a5472a3161642C922C3',
+        functionName: 'createToken',
+        args: args,
+        account: account,
+        value: BigInt(requiredValue),
+      })
+
+      console.log('Transaction successful:', transaction)
+      return transaction
+    } catch (error) {
+      console.error('Error while creating coin:', error)
+      throw error
+    }
+  }
+
+  return (
+    <div className="flex flex-col gap-4 p-6 w-full sm:max-w-[30%] mx-auto">
+      <div className="flex flex-col text-start gap-1">
+        <span className="font-semibold text-purple-500">name</span>
+        <input
+          type="text"
+          name="name"
+          value={formData.name}
+          onChange={handleChange}
+          className="min-h-10 rounded-md text-black p-1"
+        />
+      </div>
+      <div className="flex flex-col text-start gap-1">
+        <span className="font-semibold text-purple-500">ticker</span>
+        <input
+          type="text"
+          name="ticker"
+          value={formData.ticker}
+          onChange={handleChange}
+          className="min-h-10 rounded-md text-black p-1"
+        />
+      </div>
+      <div className="flex flex-col text-start gap-1">
+        <span className="font-semibold text-purple-500">description</span>
+        <textarea
+          name="description"
+          value={formData.description}
+          onChange={handleChange}
+          className="min-h-24 rounded-md text-black p-1"
+        />
+      </div>
+      <div className="flex flex-col text-start gap-1">
+        <span className="font-semibold text-purple-500">image or video</span>
+        <div className="w-full p-4 rounded-md border border-white flex flex-col items-center justify-center text-center gap-2">
+          {!filePreview ? <MdFileUpload size={30} /> : null}
+          <div className="flex flex-col items-center space-y-4">
+            {/* Hidden file input */}
+            <input
+              type="file"
+              id="avatar"
+              name="avatar"
+              accept="image/png, image/jpeg"
+              className="hidden"
+              onChange={handleFileChange}
+            />
+            {filePreview && (
+              <div className="mt-4">
+                <img src={filePreview} alt="Preview" className="w-44 h-44 object-cover rounded-md shadow-md" />
+              </div>
+            )}
+            <label
+              htmlFor="avatar"
+              className="cursor-pointer px-4  border border-white text-white hover:border-white/60 hover:text-white/60"
+            >
+              {filePreview ? 'select another file' : 'select file'}
+            </label>
+            {error ? (
+              <span className="text-red-500 text-sm">{error}</span>
+            ) : (
+              fileName && <span className="text-gray-500 text-sm">{fileName}</span>
+            )}
+          </div>
+        </div>
+      </div>
+      <button
+        className="py-2 px-5 bg-purple-500 hover:bg-purple-600 rounded-md font-semibold my-2"
+        onClick={() =>
+          createCoin({
+            name: formData.name,
+            ticker: formData.ticker,
+            description: formData.description,
+            image: 'image_url_here',
+            account: address,
+          }).catch((err) => console.error('Failed to create coin:', err))
+        }
+      >
+        create coin
+      </button>
+    </div>
+  )
+}

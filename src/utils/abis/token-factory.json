@@ -1,0 +1,170 @@
+[
+  { "type": "constructor", "inputs": [], "stateMutability": "nonpayable" },
+  {
+    "type": "function",
+    "name": "CREATION_PROTOCOL_FEES",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "DECIMALS",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "FUNDING_GOAL",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "INITIAL_PRICE",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "INITIAL_SUPPLY",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "K",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "MAX_SUPPLY",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "UNISWAP_V2_ROUTER",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "address", "internalType": "address" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "UNISWAP_v2_FACTORY",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "address", "internalType": "address" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "addressToToken",
+    "inputs": [{ "name": "", "type": "address", "internalType": "address" }],
+    "outputs": [
+      { "name": "name", "type": "string", "internalType": "string" },
+      { "name": "symbol", "type": "string", "internalType": "string" },
+      { "name": "description", "type": "string", "internalType": "string" },
+      { "name": "logoUrl", "type": "string", "internalType": "string" },
+      { "name": "tokenAddress", "type": "address", "internalType": "address" },
+      { "name": "creator", "type": "address", "internalType": "address" },
+      { "name": "amountRaised", "type": "uint256", "internalType": "uint256" }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "buyTokens",
+    "inputs": [
+      { "name": "tokenAddress", "type": "address", "internalType": "address" },
+      { "name": "amount", "type": "uint256", "internalType": "uint256" }
+    ],
+    "outputs": [],
+    "stateMutability": "payable"
+  },
+  {
+    "type": "function",
+    "name": "calculateCost",
+    "inputs": [
+      { "name": "currentSupply", "type": "uint256", "internalType": "uint256" },
+      { "name": "amount", "type": "uint256", "internalType": "uint256" }
+    ],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "pure"
+  },
+  {
+    "type": "function",
+    "name": "createToken",
+    "inputs": [
+      { "name": "name", "type": "string", "internalType": "string" },
+      { "name": "symbol", "type": "string", "internalType": "string" },
+      { "name": "description", "type": "string", "internalType": "string" },
+      { "name": "logoUrl", "type": "string", "internalType": "string" }
+    ],
+    "outputs": [{ "name": "", "type": "address", "internalType": "address" }],
+    "stateMutability": "payable"
+  },
+  {
+    "type": "function",
+    "name": "deployedTokenAddresses",
+    "inputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "outputs": [{ "name": "", "type": "address", "internalType": "address" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "owner",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "address", "internalType": "address" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "totalTokensDeployed",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "withdrawFee",
+    "inputs": [{ "name": "to", "type": "address", "internalType": "address" }],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "event",
+    "name": "TokenCreated",
+    "inputs": [
+      { "name": "name", "type": "string", "indexed": true, "internalType": "string" },
+      { "name": "symbol", "type": "string", "indexed": true, "internalType": "string" },
+      { "name": "description", "type": "string", "indexed": false, "internalType": "string" },
+      { "name": "uri", "type": "string", "indexed": false, "internalType": "string" },
+      { "name": "creator", "type": "address", "indexed": true, "internalType": "address" }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "TokenPairDeployed",
+    "inputs": [
+      { "name": "token0", "type": "address", "indexed": false, "internalType": "address" },
+      { "name": "token1", "type": "address", "indexed": false, "internalType": "address" }
+    ],
+    "anonymous": false
+  },
+  { "type": "error", "name": "TokenFactory__CreatorFeeNotIncluded", "inputs": [] },
+  { "type": "error", "name": "TokenFactory__FeeWithdrawalFailed", "inputs": [] },
+  { "type": "error", "name": "TokenFactory__FundingFulfilled", "inputs": [] },
+  { "type": "error", "name": "TokenFactory__MaxSupplyExceeded", "inputs": [] },
+  { "type": "error", "name": "TokenFactory__NotEnoughEthToBuyTokens", "inputs": [] },
+  { "type": "error", "name": "TokenFactory__NotOwner", "inputs": [] },
+  { "type": "error", "name": "TokenFactory__ZeroAddress", "inputs": [] },
+  { "type": "error", "name": "TokenFactory__ZeroAmount", "inputs": [] }
+]
