@@ -1,4 +1,4 @@
-import CreateToken from "@/components/create-token"
+import CreateToken from '@/components/create-token'
 
 export default function Home() {
   return (

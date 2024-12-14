@@ -16,17 +16,26 @@ interface CreateCoinProps {
 const requiredValue = 500000000000000
 
 export default function TokenDetails() {
-  const [fileName, setFileName] = useState('')
-  const [filePreview, setFilePreview] = useState<string | null>(null)
-  const [error, setError] = useState('')
   const [formData, setFormData] = useState({
     name: '',
     ticker: '',
     description: '',
     image: '',
   })
+  const [fileName, setFileName] = useState('')
+  const [filePreview, setFilePreview] = useState<string | null>(null)
+  const [error, setError] = useState('')
+  const [file, setFile] = useState<File>()
+  const [url, setUrl] = useState('')
+  const [uploading, setUploading] = useState(false)
+
   const { data: hash, writeContractAsync } = useWriteContract()
   const { address } = useAccount()
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
+  }
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -42,11 +51,32 @@ export default function TokenDetails() {
     setFileName(file.name)
     const previewURL = URL.createObjectURL(file)
     setFilePreview(previewURL)
+    setFile(event.target?.files?.[0])
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
+  const uploadFile = async () => {
+    try {
+      if (!file) {
+        alert('No file selected')
+        return
+      }
+
+      setUploading(true)
+      const data = new FormData()
+      data.set('file', file)
+      const uploadRequest = await fetch('/api/files', {
+        method: 'POST',
+        body: data,
+      })
+      const ipfsUrl = await uploadRequest.json()
+      setUrl(ipfsUrl)
+      console.log(url)
+      setUploading(false)
+    } catch (e) {
+      console.log(e)
+      setUploading(false)
+      alert('Trouble uploading file')
+    }
   }
 
   async function createCoin({ name, ticker, description, image, account }: CreateCoinProps) {
@@ -120,17 +150,21 @@ export default function TokenDetails() {
                 <img src={filePreview} alt="Preview" className="w-44 h-44 object-cover rounded-md shadow-md" />
               </div>
             )}
+            {error ? (
+              <span className="text-red-500 text-sm">{error}</span>
+            ) : (
+              fileName && <span className="text-gray-500 text-sm">{fileName}</span>
+            )}
             <label
               htmlFor="avatar"
               className="cursor-pointer px-4  border border-white text-white hover:border-white/60 hover:text-white/60"
             >
               {filePreview ? 'select another file' : 'select file'}
             </label>
-            {error ? (
-              <span className="text-red-500 text-sm">{error}</span>
-            ) : (
-              fileName && <span className="text-gray-500 text-sm">{fileName}</span>
-            )}
+
+            <button type="button" disabled={uploading} onClick={uploadFile} className="border border-white px-2">
+              {uploading ? 'Uploading...' : 'Upload'}
+            </button>
           </div>
         </div>
       </div>
