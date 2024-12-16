@@ -1,6 +1,7 @@
-"use client"
-import { usePrivy } from "@privy-io/react-auth"
-import { useAccount } from "wagmi"
+'use client'
+import { usePrivy } from '@privy-io/react-auth'
+import { useAccount } from 'wagmi'
+import { formatAddress } from '@/utils/helpers'
 
 export default function Navbar() {
   const { login, authenticated, logout } = usePrivy()
@@ -9,10 +10,14 @@ export default function Navbar() {
   return (
     <div className="h-16 flex justify-between items-center px-6">
       <h1 className="font-semibold">take.off</h1>
-      {authenticated ? (
-        <button onClick={logout}>{address?.slice(0, 6)}...</button>
+      {authenticated && address ? (
+        <button className="font-semibold" onClick={logout}>
+          {formatAddress(address)}
+        </button>
       ) : (
-        <button onClick={login}>[connect wallet]</button>
+        <button className="font-semibold" onClick={login}>
+          [connect wallet]
+        </button>
       )}
     </div>
   )
