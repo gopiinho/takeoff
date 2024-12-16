@@ -1,9 +1,9 @@
-import CreateToken from '@/components/create-token'
+import CreateCoinHeader from '@/components/create-coin-header'
 
 export default function Home() {
   return (
     <div>
-      <CreateToken />
+      <CreateCoinHeader />
     </div>
   )
 }

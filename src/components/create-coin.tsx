@@ -14,7 +14,7 @@ interface CreateCoinProps {
   account: Address | undefined
 }
 
-export default function TokenDetails() {
+export default function CreateCoin() {
   const [formData, setFormData] = useState({
     name: '',
     ticker: '',

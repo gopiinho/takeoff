@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import TokenDetails from '@/components/token-details'
+import CreateCoin from '@/components/create-coin'
 
 export default function Create() {
   return (
@@ -7,7 +7,7 @@ export default function Create() {
       <Link href="/" className="hover:font-semibold text-2xl">
         [go back]
       </Link>
-      <TokenDetails />
+      <CreateCoin />
     </div>
   )
 }
