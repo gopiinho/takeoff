@@ -119,6 +119,28 @@
   },
   {
     "type": "function",
+    "name": "getAllTokensInfo",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple[]",
+        "internalType": "struct TokenFactory.TokenInfo[]",
+        "components": [
+          { "name": "name", "type": "string", "internalType": "string" },
+          { "name": "symbol", "type": "string", "internalType": "string" },
+          { "name": "description", "type": "string", "internalType": "string" },
+          { "name": "logoUrl", "type": "string", "internalType": "string" },
+          { "name": "tokenAddress", "type": "address", "internalType": "address" },
+          { "name": "creator", "type": "address", "internalType": "address" },
+          { "name": "amountRaised", "type": "uint256", "internalType": "uint256" }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "owner",
     "inputs": [],
     "outputs": [{ "name": "", "type": "address", "internalType": "address" }],

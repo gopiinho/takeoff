@@ -1,56 +1,48 @@
+'use client'
+import { Address } from 'viem'
+import { useReadContract } from 'wagmi'
+import abi from '@/utils/abis/token-factory.json'
+import { factoryContractAddress } from '@/utils/constants'
 import CoinDetails from './coin-details'
 
-const image = 'https://cryptologos.cc/logos/bitcoin-btc-logo.png?v=040'
-const creator = '0x1234567890123456789012345678901234567890'
-const raised = 24
-const name = 'Bitcoin'
-const ticker = 'BTC'
-const description =
-  'Based on a free-market ideology, bitcoin was invented in 2008 by Satoshi Nakamoto, an unknown person. Use of bitcoin as a currency began in 2009, with the release of its open-source implementation. In 2021, El Salvador adopted it as legal tender.'
+interface TokenInfo {
+  name: string
+  ticker: string
+  description: string
+  logoUrl: string
+  creator: Address
+  raised: number
+  tokenAddress: Address
+}
 
 export default function CoinList() {
+  const { data } = useReadContract({
+    abi,
+    address: factoryContractAddress,
+    functionName: 'getAllTokensInfo',
+  })
+
+  const tokensData = data as unknown as TokenInfo[]
+
+  console.log(tokensData)
+
   return (
-    <div className="grid grid-cols-3 px-10 max-sm:px-2">
-      <CoinDetails
-        image={image}
-        creator={creator}
-        raised={raised}
-        name={name}
-        ticker={ticker}
-        description={description}
-      />
-      <CoinDetails
-        image={image}
-        creator={creator}
-        raised={raised}
-        name={name}
-        ticker={ticker}
-        description={description}
-      />{' '}
-      <CoinDetails
-        image={image}
-        creator={creator}
-        raised={raised}
-        name={name}
-        ticker={ticker}
-        description={description}
-      />{' '}
-      <CoinDetails
-        image={image}
-        creator={creator}
-        raised={raised}
-        name={name}
-        ticker={ticker}
-        description={description}
-      />{' '}
-      <CoinDetails
-        image={image}
-        creator={creator}
-        raised={raised}
-        name={name}
-        ticker={ticker}
-        description={description}
-      />
+    <div className="grid max-lg:grid-cols-1 grid-cols-3 px-10 max-sm:px-2">
+      {tokensData && tokensData.length > 0 ? (
+        tokensData.map((token: TokenInfo, index) => (
+          <CoinDetails
+            key={index}
+            image={token.logoUrl}
+            creator={token.creator}
+            raised={token.raised}
+            name={token.name}
+            ticker={token.ticker}
+            description={token.description}
+          />
+        ))
+      ) : (
+        <p>Loading tokens...</p>
+      )}
     </div>
   )
 }
