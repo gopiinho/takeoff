@@ -74,4 +74,18 @@ contract TokenFactoryTest is Test {
         tokenFactory.withdrawFee(USER);
         vm.stopPrank();
     }
+
+    function testReturnsAllTokensList() public {
+        string memory name = "Bitcoin";
+        string memory symbol = "BTC";
+        string memory description = "Official Bitcoin";
+        string memory logoUrl = "https://bitcoin.com";
+        vm.startPrank(USER);
+        tokenFactory.createToken{value: FEE}(name, symbol, description, logoUrl);
+        vm.stopPrank();
+
+        TokenFactory.TokenInfo[] memory tokensList = tokenFactory.getAllTokensInfo();
+
+        assertEq(tokensList.length, 2);
+    }
 }

@@ -175,6 +175,14 @@ contract TokenFactory {
     ///////////////////////////////////////
     // Public & External View Functions ///
     ///////////////////////////////////////
+    function getAllTokensInfo() public view returns (TokenInfo[] memory) {
+        TokenInfo[] memory tokens = new TokenInfo[](deployedTokenAddresses.length);
+        for (uint256 i = 0; i < deployedTokenAddresses.length; ++i) {
+            tokens[i] = addressToToken[deployedTokenAddresses[i]];
+        }
+        return tokens;
+    }
+
     function calculateCost(uint256 currentSupply, uint256 amount) public pure returns (uint256) {
         uint256 scaledAmount = amount / DECIMALS;
         uint256 exp1 = (K * (currentSupply + scaledAmount)) / 1e18;
