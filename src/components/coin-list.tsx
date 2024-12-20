@@ -7,7 +7,7 @@ import CoinDetails from './coin-details'
 
 interface TokenInfo {
   name: string
-  ticker: string
+  symbol: string
   description: string
   logoUrl: string
   creator: Address
@@ -36,7 +36,7 @@ export default function CoinList() {
             creator={token.creator}
             raised={token.raised}
             name={token.name}
-            ticker={token.ticker}
+            ticker={token.symbol}
             description={token.description}
           />
         ))

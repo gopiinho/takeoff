@@ -1,4 +1,5 @@
 'use client'
+import Link from 'next/link'
 import { usePrivy } from '@privy-io/react-auth'
 import { useAccount } from 'wagmi'
 import { formatAddress } from '@/utils/helpers'
@@ -9,13 +10,15 @@ export default function Navbar() {
 
   return (
     <div className="h-16 flex justify-between items-center px-6">
-      <h1 className="font-semibold">take.off</h1>
+      <Link href="/" className="font-semibold hover:opacity-80 text-xl">
+        take.off
+      </Link>
       {authenticated && address ? (
-        <button className="font-semibold" onClick={logout}>
+        <button className="font-semibold hover:opacity-80" onClick={logout}>
           {formatAddress(address)}
         </button>
       ) : (
-        <button className="font-semibold" onClick={login}>
+        <button className="font-semibold hover:opacity-60" onClick={login}>
           [connect wallet]
         </button>
       )}
