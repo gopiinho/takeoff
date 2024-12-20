@@ -6,6 +6,6 @@ import { http } from 'wagmi'
 export const wagmiConfig = createConfig({
   chains: [baseSepolia],
   transports: {
-    [baseSepolia.id]: http(process.env.ALCHEMY_API_KEY),
+    [baseSepolia.id]: http(process.env.RPC_API_KEY),
   },
 })
