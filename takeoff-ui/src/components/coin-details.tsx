@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { Address, formatEther } from 'viem'
 import { formatAddress } from '@/utils/helpers'
 
@@ -8,12 +9,24 @@ interface CoinDetailsProps {
   name: string
   ticker: string
   description: string
+  tokenAddress: Address
 }
 
-export default function CoinDetails({ image, creator, raised, name, ticker, description }: CoinDetailsProps) {
+export default function CoinDetails({
+  image,
+  creator,
+  raised,
+  name,
+  ticker,
+  description,
+  tokenAddress,
+}: CoinDetailsProps) {
   return (
     <div className="">
-      <div className="p-2 m-2 flex gap-2 border border-transparent hover:border-white/80 cursor-pointer text-white/50">
+      <Link
+        href={`/coin/${tokenAddress}`}
+        className="p-2 m-2 flex gap-2 border border-transparent hover:border-white/80 cursor-pointer text-white/50"
+      >
         <img className="w-28 h-28 flex-shrink-0" src={image} alt="image" width={0} height={0} />
         <div className="flex flex-col gap-1 flex-1">
           <span className="text-xs">created by: {formatAddress(creator)}</span>
@@ -25,7 +38,7 @@ export default function CoinDetails({ image, creator, raised, name, ticker, desc
             <span className="text-white/70 break-words">{description}</span>
           </div>
         </div>
-      </div>
+      </Link>
     </div>
   )
 }

@@ -38,6 +38,7 @@ export default function CoinList() {
             name={token.name}
             ticker={token.symbol}
             description={token.description}
+            tokenAddress={token.tokenAddress}
           />
         ))
       ) : (
