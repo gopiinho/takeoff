@@ -18,4 +18,10 @@ contract Token is ERC20 {
         _mint(account, amount);
         return true;
     }
+
+    function burnTokens(address account, uint256 amount) external returns (bool) {
+        require(msg.sender == owner, Token__NotOwner());
+        _burn(account, amount);
+        return true;
+    }
 }

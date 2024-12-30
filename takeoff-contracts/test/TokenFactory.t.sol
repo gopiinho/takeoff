@@ -13,6 +13,7 @@ contract TokenFactoryTest is Test {
     address CREATOR;
     address USER;
     uint256 private constant FEE = 0.0005 ether;
+    uint256 amountToBuy = 700000000e18;
 
     function setUp() public {
         OWNER = makeAddr("owner");
@@ -37,13 +38,7 @@ contract TokenFactoryTest is Test {
         token = Token(tokenAddress);
     }
 
-    function testCanDeployToken() public view {
-        uint256 tokenSupply = token.totalSupply();
-        assertEq(tokenSupply, tokenFactory.INITIAL_SUPPLY());
-    }
-
-    function testCanBuyTokens() public {
-        uint256 amountToBuy = 700000000e18;
+    modifier _buysToken() {
         address tokenToBuy = address(token);
         uint256 purchasedSupply = token.totalSupply() - tokenFactory.INITIAL_SUPPLY();
         uint256 ethCost = tokenFactory.calculateCost(purchasedSupply, amountToBuy);
@@ -51,9 +46,30 @@ contract TokenFactoryTest is Test {
         vm.startPrank(USER);
         tokenFactory.buyTokens{value: ethCost}(tokenToBuy, amountToBuy);
         vm.stopPrank();
+        _;
+    }
 
+    function testCanDeployToken() public view {
+        uint256 tokenSupply = token.totalSupply();
+        assertEq(tokenSupply, tokenFactory.INITIAL_SUPPLY());
+    }
+
+    function testCanBuyTokens() public _buysToken {
         uint256 userBalance = token.balanceOf(USER);
         assertEq(userBalance, amountToBuy);
+    }
+
+    function testCanSellTokens() public _buysToken {
+        uint256 userBalance = token.balanceOf(USER);
+        assertEq(userBalance, amountToBuy);
+
+        uint256 amountToSell = 500000000e18;
+        vm.startPrank(USER);
+        tokenFactory.sellTokens(address(token), amountToSell);
+        vm.stopPrank();
+
+        uint256 userBalanceAfterSell = token.balanceOf(USER);
+        assertEq(userBalanceAfterSell, amountToBuy - amountToSell);
     }
 
     function testCanWithdrawProtocolFee() public {

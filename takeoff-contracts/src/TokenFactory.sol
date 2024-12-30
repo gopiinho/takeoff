@@ -14,6 +14,8 @@ contract TokenFactory {
     error TokenFactory__ZeroAmount();
     error TokenFactory__ZeroAddress();
     error TokenFactory__FundingFulfilled();
+    error TokenFactory__NotEnoughBalance();
+    error TokenFactory__EthTransferFailed();
     error TokenFactory__MaxSupplyExceeded();
     error TokenFactory__FeeWithdrawalFailed();
     error TokenFactory__CreatorFeeNotIncluded();
@@ -103,7 +105,7 @@ contract TokenFactory {
      *  @param amount Amount of tokens to buy.
      */
     function buyTokens(address tokenAddress, uint256 amount) public payable {
-        TokenInfo memory tokenInfo = addressToToken[tokenAddress];
+        TokenInfo storage tokenInfo = addressToToken[tokenAddress];
         Token token = Token(tokenAddress);
         uint256 tokenCurrentSupply = token.totalSupply();
         uint256 availableSupply = MAX_SUPPLY - tokenCurrentSupply;
@@ -128,6 +130,25 @@ contract TokenFactory {
         }
 
         token.mintTokens(msg.sender, amount);
+    }
+
+    function sellTokens(address tokenAddress, uint256 amount) public {
+        TokenInfo storage tokenInfo = addressToToken[tokenAddress];
+        Token token = Token(tokenAddress);
+        uint256 tokenCurrentSupply = token.totalSupply();
+
+        require(tokenInfo.tokenAddress != address(0), TokenFactory__ZeroAddress());
+        require(amount > 0, TokenFactory__ZeroAmount());
+        require(amount <= token.balanceOf(msg.sender), TokenFactory__NotEnoughBalance());
+        require(tokenInfo.amountRaised <= FUNDING_GOAL, TokenFactory__FundingFulfilled());
+
+        uint256 purchasedCurrentSupply = (tokenCurrentSupply - INITIAL_SUPPLY) / DECIMALS;
+        uint256 sellEthReturn = calculateSellReturn(purchasedCurrentSupply, amount);
+
+        tokenInfo.amountRaised -= sellEthReturn;
+        token.burnTokens(msg.sender, amount);
+        (bool success,) = msg.sender.call{value: sellEthReturn}("");
+        require(success, TokenFactory__EthTransferFailed());
     }
 
     function _deployLpAndBurnTokens(address tokenAddress, uint256 amount, uint256 ethAmount) internal {
@@ -180,6 +201,7 @@ contract TokenFactory {
         for (uint256 i = 0; i < deployedTokenAddresses.length; ++i) {
             tokens[i] = addressToToken[deployedTokenAddresses[i]];
         }
+
         return tokens;
     }
 
@@ -196,6 +218,19 @@ contract TokenFactory {
         uint256 ethCost = (INITIAL_PRICE * DECIMALS * (e1 - e2)) / K;
 
         return ethCost;
+    }
+
+    function calculateSellReturn(uint256 currentSupply, uint256 amount) public pure returns (uint256) {
+        uint256 scaledAmount = amount / DECIMALS;
+        uint256 exp1 = (K * currentSupply) / 1e18;
+        uint256 exp2 = (K * (currentSupply - scaledAmount)) / 1e18;
+        uint256 e1 = _exp(exp1);
+        uint256 e2 = _exp(exp2);
+
+        // cost = P0/K * (e^K(c) - e^K(c - x))
+        uint256 ethReturn = (INITIAL_PRICE * DECIMALS * (e1 - e2)) / K;
+
+        return ethReturn;
     }
 
     ///////////////////////////////////////
