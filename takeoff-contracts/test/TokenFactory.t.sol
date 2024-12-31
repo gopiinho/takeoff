@@ -104,4 +104,16 @@ contract TokenFactoryTest is Test {
 
         assertEq(tokensList.length, 2);
     }
+
+    function testReturnsTokenInfo() public view {
+        TokenFactory.TokenInfo memory tokenInfo = tokenFactory.getTokenInfo(address(token));
+
+        assertEq(tokenInfo.name, "DogeCoin");
+        assertEq(tokenInfo.symbol, "DOGE");
+        assertEq(tokenInfo.description, "Official DogeCoin");
+        assertEq(tokenInfo.logoUrl, "https://dogecoin.com");
+        assertEq(tokenInfo.tokenAddress, address(token));
+        assertEq(tokenInfo.creator, CREATOR);
+        assertEq(tokenInfo.amountRaised, 0);
+    }
 }

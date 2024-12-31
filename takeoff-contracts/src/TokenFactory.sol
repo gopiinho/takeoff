@@ -132,6 +132,12 @@ contract TokenFactory {
         token.mintTokens(msg.sender, amount);
     }
 
+    /**
+     * @notice User calls this function to sell their purchased tokens.
+     *  @dev User sells their desired amount of specific tokens and receives eth.
+     *  @param tokenAddress Address of the token.
+     *  @param amount Amount of tokens to buy.
+     */
     function sellTokens(address tokenAddress, uint256 amount) public {
         TokenInfo storage tokenInfo = addressToToken[tokenAddress];
         Token token = Token(tokenAddress);
@@ -196,6 +202,9 @@ contract TokenFactory {
     ///////////////////////////////////////
     // Public & External View Functions ///
     ///////////////////////////////////////
+    /**
+     *  @return Returns list of all tokens deployed from factory.
+     */
     function getAllTokensInfo() public view returns (TokenInfo[] memory) {
         TokenInfo[] memory tokens = new TokenInfo[](deployedTokenAddresses.length);
         for (uint256 i = 0; i < deployedTokenAddresses.length; ++i) {
@@ -203,6 +212,14 @@ contract TokenFactory {
         }
 
         return tokens;
+    }
+
+    /**
+     *  @return Returns specific token info deployed from factory.
+     */
+    function getTokenInfo(address tokenAddress) public view returns (TokenInfo memory) {
+        require(tokenAddress != address(0), TokenFactory__ZeroAddress());
+        return addressToToken[tokenAddress];
     }
 
     function calculateCost(uint256 currentSupply, uint256 amount) public pure returns (uint256) {
@@ -224,6 +241,7 @@ contract TokenFactory {
         uint256 scaledAmount = amount / DECIMALS;
         uint256 exp1 = (K * currentSupply) / 1e18;
         uint256 exp2 = (K * (currentSupply - scaledAmount)) / 1e18;
+
         uint256 e1 = _exp(exp1);
         uint256 e2 = _exp(exp2);
 
