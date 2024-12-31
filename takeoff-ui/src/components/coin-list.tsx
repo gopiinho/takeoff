@@ -14,19 +14,17 @@ export default function CoinList() {
 
   const tokensData = data as unknown as TokenInfoType[]
 
-  console.log(tokensData)
-
   return (
     <div className="grid max-lg:grid-cols-1 grid-cols-3 px-10 max-sm:px-2">
       {tokensData && tokensData.length > 0 ? (
         tokensData.map((token: TokenInfoType, index) => (
           <CoinDetails
             key={index}
-            image={token.logoUrl}
+            logoUrl={token.logoUrl}
             creator={token.creator}
             raised={token.raised}
             name={token.name}
-            ticker={token.symbol}
+            symbol={token.symbol}
             description={token.description}
             tokenAddress={token.tokenAddress}
           />
