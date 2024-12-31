@@ -12,23 +12,25 @@ export default function CoinList() {
     functionName: 'getAllTokensInfo',
   })
 
-  const tokensData = data as unknown as TokenInfoType[]
+  const tokensData = (data as TokenInfoType[] | undefined) ?? []
 
   return (
     <div className="grid max-lg:grid-cols-1 grid-cols-3 px-10 max-sm:px-2">
-      {tokensData && tokensData.length > 0 ? (
-        tokensData.map((token: TokenInfoType, index) => (
-          <CoinDetails
-            key={index}
-            logoUrl={token.logoUrl}
-            creator={token.creator}
-            raised={token.raised}
-            name={token.name}
-            symbol={token.symbol}
-            description={token.description}
-            tokenAddress={token.tokenAddress}
-          />
-        ))
+      {tokensData.length > 0 ? (
+        [...tokensData]
+          .reverse()
+          .map((token, index) => (
+            <CoinDetails
+              key={index}
+              logoUrl={token.logoUrl}
+              creator={token.creator}
+              raised={token.raised}
+              name={token.name}
+              symbol={token.symbol}
+              description={token.description}
+              tokenAddress={token.tokenAddress}
+            />
+          ))
       ) : (
         <p>Loading tokens...</p>
       )}

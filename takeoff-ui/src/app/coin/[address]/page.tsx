@@ -19,7 +19,6 @@ export default function Coin(props: { params: Promise<{ address: string }> }) {
   })
 
   const tokenData = data as TokenInfoType | undefined
-  console.log(tokenData)
 
   if (!params.address) {
     return <div className="w-full lg:w-[70%] mx-auto text-white/50 px-4">NO ADDRESS</div>

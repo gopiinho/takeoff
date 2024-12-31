@@ -23,7 +23,7 @@ export default function CoinDetails({
   tokenAddress,
 }: TokenInfoType) {
   return (
-    <div className="">
+    <div>
       <Link
         href={`/coin/${tokenAddress}`}
         className="p-2 m-2 flex gap-2 border border-transparent hover:border-white/80 cursor-pointer text-white/50"
