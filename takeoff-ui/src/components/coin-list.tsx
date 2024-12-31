@@ -1,19 +1,9 @@
 'use client'
-import { Address } from 'viem'
 import { useReadContract } from 'wagmi'
 import abi from '@/utils/abis/token-factory.json'
 import { factoryContractAddress } from '@/utils/constants'
 import CoinDetails from './coin-details'
-
-interface TokenInfo {
-  name: string
-  symbol: string
-  description: string
-  logoUrl: string
-  creator: Address
-  raised: number
-  tokenAddress: Address
-}
+import { TokenInfoType } from '@/utils/types'
 
 export default function CoinList() {
   const { data } = useReadContract({
@@ -22,14 +12,14 @@ export default function CoinList() {
     functionName: 'getAllTokensInfo',
   })
 
-  const tokensData = data as unknown as TokenInfo[]
+  const tokensData = data as unknown as TokenInfoType[]
 
   console.log(tokensData)
 
   return (
     <div className="grid max-lg:grid-cols-1 grid-cols-3 px-10 max-sm:px-2">
       {tokensData && tokensData.length > 0 ? (
-        tokensData.map((token: TokenInfo, index) => (
+        tokensData.map((token: TokenInfoType, index) => (
           <CoinDetails
             key={index}
             image={token.logoUrl}
