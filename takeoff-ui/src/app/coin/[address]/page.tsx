@@ -1,14 +1,14 @@
 'use client'
-import { useState, use } from 'react'
+import { use } from 'react'
 import { useReadContract } from 'wagmi'
 import abi from '@/utils/abis/token-factory.json'
 import { TokenInfoType } from '@/utils/types'
 import { factoryContractAddress } from '@/utils/constants'
 import { formatAddress } from '@/utils/helpers'
-import { formatEther } from 'viem'
+import { Address, formatEther } from 'viem'
 import CoinTrade from '@/components/coin-trade'
 
-export default function Coin(props: { params: Promise<{ address: string }> }) {
+export default function Coin(props: { params: Promise<{ address: Address }> }) {
   const params = use(props.params)
 
   const { data } = useReadContract({

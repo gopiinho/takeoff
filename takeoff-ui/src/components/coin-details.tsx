@@ -1,17 +1,7 @@
 import Link from 'next/link'
-import { Address, formatEther } from 'viem'
+import { formatEther } from 'viem'
 import { formatAddress } from '@/utils/helpers'
 import { TokenInfoType } from '@/utils/types'
-
-interface CoinDetailsProps {
-  image: string
-  creator: Address
-  raised: number
-  name: string
-  ticker: string
-  description: string
-  tokenAddress: Address
-}
 
 export default function CoinDetails({
   logoUrl,
