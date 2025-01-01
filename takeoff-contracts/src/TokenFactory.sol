@@ -117,7 +117,7 @@ contract TokenFactory {
 
         // Calculate the cost of tokens of amount quantity based on exponential bonding curve.
         uint256 purchasedCurrentSupply = (tokenCurrentSupply - INITIAL_SUPPLY) / DECIMALS;
-        uint256 ethAmount = calculateCost(purchasedCurrentSupply, amount);
+        uint256 ethAmount = calculateCost(purchasedCurrentSupply, amount, true);
 
         require(msg.value >= ethAmount, TokenFactory__NotEnoughEthToBuyTokens());
         tokenInfo.amountRaised += ethAmount;
@@ -149,7 +149,7 @@ contract TokenFactory {
         require(tokenInfo.amountRaised <= FUNDING_GOAL, TokenFactory__FundingFulfilled());
 
         uint256 purchasedCurrentSupply = (tokenCurrentSupply - INITIAL_SUPPLY) / DECIMALS;
-        uint256 sellEthReturn = calculateSellReturn(purchasedCurrentSupply, amount);
+        uint256 sellEthReturn = calculateCost(purchasedCurrentSupply, amount, false);
 
         tokenInfo.amountRaised -= sellEthReturn;
         token.burnTokens(msg.sender, amount);
@@ -222,33 +222,18 @@ contract TokenFactory {
         return addressToToken[tokenAddress];
     }
 
-    function calculateCost(uint256 currentSupply, uint256 amount) public pure returns (uint256) {
+    function calculateCost(uint256 currentSupply, uint256 amount, bool isBuying) public pure returns (uint256) {
         uint256 scaledAmount = amount / DECIMALS;
-        uint256 exp1 = (K * (currentSupply + scaledAmount)) / 1e18;
-        uint256 exp2 = (K * currentSupply) / 1e18;
+
+        uint256 exp1 = isBuying ? (K * (currentSupply + scaledAmount)) / 1e18 : (K * currentSupply) / 1e18;
+        uint256 exp2 = isBuying ? (K * currentSupply) / 1e18 : (K * (currentSupply - scaledAmount)) / 1e18;
 
         uint256 e1 = _exp(exp1);
         uint256 e2 = _exp(exp2);
 
-        // cost =  P0/K * (e^K(c + x) - e^K(c))
-        // Where (P0 / k) * (e^(k * (currentSupply + amount)) - e^(k * currentSupply))
-        uint256 ethCost = (INITIAL_PRICE * DECIMALS * (e1 - e2)) / K;
+        uint256 ethValue = (INITIAL_PRICE * DECIMALS * (e1 - e2)) / K;
 
-        return ethCost;
-    }
-
-    function calculateSellReturn(uint256 currentSupply, uint256 amount) public pure returns (uint256) {
-        uint256 scaledAmount = amount / DECIMALS;
-        uint256 exp1 = (K * currentSupply) / 1e18;
-        uint256 exp2 = (K * (currentSupply - scaledAmount)) / 1e18;
-
-        uint256 e1 = _exp(exp1);
-        uint256 e2 = _exp(exp2);
-
-        // cost = P0/K * (e^K(c) - e^K(c - x))
-        uint256 ethReturn = (INITIAL_PRICE * DECIMALS * (e1 - e2)) / K;
-
-        return ethReturn;
+        return ethValue;
     }
 
     ///////////////////////////////////////

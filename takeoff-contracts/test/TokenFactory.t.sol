@@ -41,7 +41,7 @@ contract TokenFactoryTest is Test {
     modifier _buysToken() {
         address tokenToBuy = address(token);
         uint256 purchasedSupply = token.totalSupply() - tokenFactory.INITIAL_SUPPLY();
-        uint256 ethCost = tokenFactory.calculateCost(purchasedSupply, amountToBuy);
+        uint256 ethCost = tokenFactory.calculateCost(purchasedSupply, amountToBuy, true);
 
         vm.startPrank(USER);
         tokenFactory.buyTokens{value: ethCost}(tokenToBuy, amountToBuy);
