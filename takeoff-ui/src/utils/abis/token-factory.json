@@ -141,9 +141,17 @@
           { "name": "symbol", "type": "string", "internalType": "string" },
           { "name": "description", "type": "string", "internalType": "string" },
           { "name": "logoUrl", "type": "string", "internalType": "string" },
-          { "name": "tokenAddress", "type": "address", "internalType": "address" },
+          {
+            "name": "tokenAddress",
+            "type": "address",
+            "internalType": "address"
+          },
           { "name": "creator", "type": "address", "internalType": "address" },
-          { "name": "amountRaised", "type": "uint256", "internalType": "uint256" }
+          {
+            "name": "amountRaised",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
         ]
       }
     ],
@@ -152,7 +160,9 @@
   {
     "type": "function",
     "name": "getTokenInfo",
-    "inputs": [{ "name": "tokenAddress", "type": "address", "internalType": "address" }],
+    "inputs": [
+      { "name": "tokenAddress", "type": "address", "internalType": "address" }
+    ],
     "outputs": [
       {
         "name": "",
@@ -163,9 +173,17 @@
           { "name": "symbol", "type": "string", "internalType": "string" },
           { "name": "description", "type": "string", "internalType": "string" },
           { "name": "logoUrl", "type": "string", "internalType": "string" },
-          { "name": "tokenAddress", "type": "address", "internalType": "address" },
+          {
+            "name": "tokenAddress",
+            "type": "address",
+            "internalType": "address"
+          },
           { "name": "creator", "type": "address", "internalType": "address" },
-          { "name": "amountRaised", "type": "uint256", "internalType": "uint256" }
+          {
+            "name": "amountRaised",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
         ]
       }
     ],
@@ -206,11 +224,36 @@
     "type": "event",
     "name": "TokenCreated",
     "inputs": [
-      { "name": "name", "type": "string", "indexed": true, "internalType": "string" },
-      { "name": "symbol", "type": "string", "indexed": true, "internalType": "string" },
-      { "name": "description", "type": "string", "indexed": false, "internalType": "string" },
-      { "name": "uri", "type": "string", "indexed": false, "internalType": "string" },
-      { "name": "creator", "type": "address", "indexed": true, "internalType": "address" }
+      {
+        "name": "name",
+        "type": "string",
+        "indexed": true,
+        "internalType": "string"
+      },
+      {
+        "name": "symbol",
+        "type": "string",
+        "indexed": true,
+        "internalType": "string"
+      },
+      {
+        "name": "description",
+        "type": "string",
+        "indexed": false,
+        "internalType": "string"
+      },
+      {
+        "name": "uri",
+        "type": "string",
+        "indexed": false,
+        "internalType": "string"
+      },
+      {
+        "name": "creator",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
     ],
     "anonymous": false
   },
@@ -218,18 +261,40 @@
     "type": "event",
     "name": "TokenPairDeployed",
     "inputs": [
-      { "name": "token0", "type": "address", "indexed": false, "internalType": "address" },
-      { "name": "token1", "type": "address", "indexed": false, "internalType": "address" }
+      {
+        "name": "token0",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      },
+      {
+        "name": "token1",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      }
     ],
     "anonymous": false
   },
-  { "type": "error", "name": "TokenFactory__CreatorFeeNotIncluded", "inputs": [] },
+  {
+    "type": "error",
+    "name": "TokenFactory__CreatorFeeNotIncluded",
+    "inputs": []
+  },
   { "type": "error", "name": "TokenFactory__EthTransferFailed", "inputs": [] },
-  { "type": "error", "name": "TokenFactory__FeeWithdrawalFailed", "inputs": [] },
+  {
+    "type": "error",
+    "name": "TokenFactory__FeeWithdrawalFailed",
+    "inputs": []
+  },
   { "type": "error", "name": "TokenFactory__FundingFulfilled", "inputs": [] },
   { "type": "error", "name": "TokenFactory__MaxSupplyExceeded", "inputs": [] },
   { "type": "error", "name": "TokenFactory__NotEnoughBalance", "inputs": [] },
-  { "type": "error", "name": "TokenFactory__NotEnoughEthToBuyTokens", "inputs": [] },
+  {
+    "type": "error",
+    "name": "TokenFactory__NotEnoughEthToBuyTokens",
+    "inputs": []
+  },
   { "type": "error", "name": "TokenFactory__NotOwner", "inputs": [] },
   { "type": "error", "name": "TokenFactory__ZeroAddress", "inputs": [] },
   { "type": "error", "name": "TokenFactory__ZeroAmount", "inputs": [] }

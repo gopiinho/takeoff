@@ -15,7 +15,7 @@ export default function CoinList() {
   const tokensData = (data as TokenInfoType[] | undefined) ?? []
 
   return (
-    <div className="grid max-lg:grid-cols-1 grid-cols-3 px-10 max-sm:px-2">
+    <div className='grid grid-cols-3 px-10 max-lg:grid-cols-1 max-sm:px-2'>
       {tokensData.length > 0 ? (
         [...tokensData]
           .reverse()

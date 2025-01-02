@@ -31,7 +31,9 @@ export default function CreateCoin() {
   const { writeContractAsync } = useWriteContract()
   const { address } = useAccount()
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
@@ -84,7 +86,13 @@ export default function CreateCoin() {
   //     setUploading(false)
   //   }
   // }
-  async function createCoin({ name, ticker, description, image, account }: CreateCoinProps) {
+  async function createCoin({
+    name,
+    ticker,
+    description,
+    image,
+    account,
+  }: CreateCoinProps) {
     try {
       const args = [name, ticker, description, image]
 
@@ -106,44 +114,44 @@ export default function CreateCoin() {
   }
 
   return (
-    <div className="flex flex-col gap-4 p-6 w-full sm:max-w-[30%] mx-auto">
-      <div className="flex flex-col text-start gap-1">
-        <span className="font-semibold text-purple-500">name</span>
+    <div className='mx-auto flex w-full flex-col gap-4 p-6 sm:max-w-[30%]'>
+      <div className='flex flex-col gap-1 text-start'>
+        <span className='font-semibold text-purple-500'>name</span>
         <input
-          type="text"
-          name="name"
+          type='text'
+          name='name'
           value={formData.name}
           onChange={handleChange}
-          className="min-h-10 rounded-md text-black py-1 px-2 bg-[#312936] border border-white/80 text-white/80"
+          className='min-h-10 rounded-md border border-white/80 bg-[#312936] px-2 py-1 text-black text-white/80'
         />
       </div>
-      <div className="flex flex-col text-start gap-1">
-        <span className="font-semibold text-purple-500">ticker</span>
+      <div className='flex flex-col gap-1 text-start'>
+        <span className='font-semibold text-purple-500'>ticker</span>
         <input
-          type="text"
-          name="ticker"
+          type='text'
+          name='ticker'
           value={formData.ticker}
           onChange={handleChange}
-          className="min-h-10 rounded-md text-black py-1 px-2 bg-[#312936] border border-white/80 text-white/80"
+          className='min-h-10 rounded-md border border-white/80 bg-[#312936] px-2 py-1 text-black text-white/80'
         />
       </div>
-      <div className="flex flex-col text-start gap-1">
-        <span className="font-semibold text-purple-500">description</span>
+      <div className='flex flex-col gap-1 text-start'>
+        <span className='font-semibold text-purple-500'>description</span>
         <textarea
-          name="description"
+          name='description'
           value={formData.description}
           onChange={handleChange}
-          className="min-h-24 rounded-md text-black py-1 px-2 bg-[#312936] border border-white/80 text-white/80"
+          className='min-h-24 rounded-md border border-white/80 bg-[#312936] px-2 py-1 text-black text-white/80'
         />
       </div>
-      <div className="flex flex-col text-start gap-1">
-        <span className="font-semibold text-purple-500">image link</span>
+      <div className='flex flex-col gap-1 text-start'>
+        <span className='font-semibold text-purple-500'>image link</span>
         <input
-          type="text"
-          name="image"
+          type='text'
+          name='image'
           value={formData.image}
           onChange={handleChange}
-          className="min-h-10 rounded-md text-black py-1 px-2 bg-[#312936] border border-white/80 text-white/80"
+          className='min-h-10 rounded-md border border-white/80 bg-[#312936] px-2 py-1 text-black text-white/80'
         />
       </div>
       {/* TODO: add image upload */}
@@ -184,7 +192,7 @@ export default function CreateCoin() {
         </div>
       </div> */}
       <button
-        className="py-2 px-5 bg-purple-500 hover:bg-purple-600 rounded-md font-semibold my-2"
+        className='my-2 rounded-md bg-purple-500 px-5 py-2 font-semibold hover:bg-purple-600'
         onClick={() =>
           createCoin({
             name: formData.name,

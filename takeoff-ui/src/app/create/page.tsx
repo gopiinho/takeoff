@@ -3,8 +3,8 @@ import CreateCoin from '@/components/create-coin'
 
 export default function Create() {
   return (
-    <div className="w-full block items-center justify-center text-center">
-      <Link href="/" className="hover:font-semibold text-2xl">
+    <div className='block w-full items-center justify-center text-center'>
+      <Link href='/' className='text-2xl hover:font-semibold'>
         [go back]
       </Link>
       <CreateCoin />

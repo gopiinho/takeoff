@@ -1,7 +1,11 @@
 import type { Metadata } from 'next'
 import localFont from 'next/font/local'
 import './globals.css'
-import { PrivyProviders, WagmiProviders, TanstackProviders } from '@/components/providers'
+import {
+  PrivyProviders,
+  WagmiProviders,
+  TanstackProviders,
+} from '@/components/providers'
 import Navbar from '@/components/navbar'
 
 const geistSans = localFont({
@@ -26,14 +30,16 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+    <html lang='en'>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
         <PrivyProviders>
           <TanstackProviders>
             <WagmiProviders>
               <div>
                 <Navbar />
-                <div className="py-4 pb-24">{children}</div>
+                <div className='py-4 pb-24'>{children}</div>
               </div>
             </WagmiProviders>
           </TanstackProviders>
