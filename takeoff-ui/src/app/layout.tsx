@@ -30,7 +30,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang='en'>
+    <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
@@ -39,7 +39,7 @@ export default function RootLayout({
             <WagmiProviders>
               <div>
                 <Navbar />
-                <div className='py-4 pb-24'>{children}</div>
+                <div className="py-4 pb-24">{children}</div>
               </div>
             </WagmiProviders>
           </TanstackProviders>

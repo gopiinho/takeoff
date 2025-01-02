@@ -52,9 +52,9 @@ export default function CoinTrade({ tokenAddress, symbol }: CoinTradeProps) {
   }
 
   return (
-    <div className='p-4'>
-      <div className='flex flex-col justify-between gap-4 rounded-md bg-[#2D303A] p-4'>
-        <div className='flex gap-4'>
+    <div className="p-4">
+      <div className="flex flex-col justify-between gap-4 rounded-md bg-[#2D303A] p-4">
+        <div className="flex gap-4">
           <button
             className={`mx-auto min-w-[150px] rounded-md py-2 ${
               isBuy
@@ -76,12 +76,12 @@ export default function CoinTrade({ tokenAddress, symbol }: CoinTradeProps) {
             sell
           </button>
         </div>
-        <div className='flex flex-col justify-between text-white'>
+        <div className="flex flex-col justify-between text-white">
           <span>amount {isBuy ? '(ETH)' : `(${symbol})`}</span>
         </div>
         <input
-          type='text'
-          className='rounded-md border border-white bg-transparent px-4 py-2 focus:border-white focus:outline-white'
+          type="text"
+          className="rounded-md border border-white bg-transparent px-4 py-2 focus:border-white focus:outline-white"
           value={amount}
           onChange={handleInputChange}
           onInput={(e) => {
