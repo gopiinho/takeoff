@@ -4,6 +4,7 @@ pragma solidity 0.8.28;
 import {Test} from "forge-std/Test.sol";
 import {TokenFactory} from "../src/TokenFactory.sol";
 import {Token} from "../src/Token.sol";
+import {console} from "forge-std/console.sol";
 
 contract TokenFactoryTest is Test {
     TokenFactory tokenFactory;
@@ -12,6 +13,7 @@ contract TokenFactoryTest is Test {
     address WITHDRAW_WALLET;
     address CREATOR;
     address USER;
+    address USER2;
     uint256 private constant FEE = 0.0005 ether;
     uint256 amountToBuy = 700000000e18;
 
@@ -20,8 +22,10 @@ contract TokenFactoryTest is Test {
         CREATOR = makeAddr("creator");
         WITHDRAW_WALLET = makeAddr("withdrawWallet");
         USER = makeAddr("user");
+        USER2 = makeAddr("user2");
         vm.deal(CREATOR, 1 ether);
         vm.deal(USER, 30 ether);
+        vm.deal(USER2, 30 ether);
 
         vm.startPrank(OWNER);
         tokenFactory = new TokenFactory();
@@ -60,16 +64,21 @@ contract TokenFactoryTest is Test {
     }
 
     function testCanSellTokens() public _buysToken {
-        uint256 userBalance = token.balanceOf(USER);
-        assertEq(userBalance, amountToBuy);
+        uint256 userEthBalanceBeforeSell = address(USER).balance;
+        console.log("User ether balance afer initial buy of 21 ether: ", userEthBalanceBeforeSell);
+        uint256 userTokenBalance = token.balanceOf(USER);
+        assertEq(userTokenBalance, amountToBuy);
 
-        uint256 amountToSell = 500000000e18;
+        uint256 amountToSell = amountToBuy;
         vm.startPrank(USER);
         tokenFactory.sellTokens(address(token), amountToSell);
         vm.stopPrank();
 
-        uint256 userBalanceAfterSell = token.balanceOf(USER);
-        assertEq(userBalanceAfterSell, amountToBuy - amountToSell);
+        uint256 userEthBalanceAfterSell = address(USER).balance;
+        console.log("User ether balance afer selling all tokens they bought: ", userEthBalanceAfterSell);
+        uint256 userTokenBalanceAfterSell = token.balanceOf(USER);
+        assertEq(userTokenBalanceAfterSell, amountToBuy - amountToSell);
+        assertEq(userEthBalanceAfterSell, 30 ether);
     }
 
     function testCanWithdrawProtocolFee() public {
@@ -116,4 +125,13 @@ contract TokenFactoryTest is Test {
         assertEq(tokenInfo.creator, CREATOR);
         assertEq(tokenInfo.amountRaised, 0);
     }
+
+    // function testCanBuyAgainAfterInitialPurchase() public _buysToken {
+    //     uint256 amountToPurchase = 50000000e18;
+    //     vm.startPrank(USER2);
+    //     tokenFactory.buyTokens(address(token), amountToPurchase);
+    //     vm.stopPrank();
+    //     uint256 userBalance = token.balanceOf(USER2);
+    //     assertEq(userBalance, amountToPurchase);
+    // }
 }
