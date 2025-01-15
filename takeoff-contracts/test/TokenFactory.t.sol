@@ -126,12 +126,17 @@ contract TokenFactoryTest is Test {
         assertEq(tokenInfo.amountRaised, 0);
     }
 
-    // function testCanBuyAgainAfterInitialPurchase() public _buysToken {
-    //     uint256 amountToPurchase = 50000000e18;
-    //     vm.startPrank(USER2);
-    //     tokenFactory.buyTokens(address(token), amountToPurchase);
-    //     vm.stopPrank();
-    //     uint256 userBalance = token.balanceOf(USER2);
-    //     assertEq(userBalance, amountToPurchase);
-    // }
+    // 1 Billion = 1000000000
+    function testCanBuyAgainAfterInitialPurchase() public _buysToken {
+        uint256 amountToPurchase = 1e18;
+        vm.startPrank(USER2);
+
+        uint256 purchasedSupply = token.totalSupply() - tokenFactory.INITIAL_SUPPLY();
+        uint256 ethCost = tokenFactory.calculateCost(purchasedSupply, amountToPurchase, true);
+
+        tokenFactory.buyTokens{value: ethCost}(address(token), amountToPurchase);
+        vm.stopPrank();
+        uint256 userBalance = token.balanceOf(USER2);
+        assertEq(userBalance, amountToPurchase);
+    }
 }
